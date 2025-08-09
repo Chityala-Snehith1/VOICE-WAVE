@@ -11,7 +11,7 @@ app = FastAPI()
 
 # Dummy unique code check (replace with real logic)
 USER_CODES = {
-    "user@example.com": "UNIQUECODE123"
+    "voicewaveproject@gmail.com": "mjellbjjvyvmadbg"
 }
 
 @app.post("/send-email/")
