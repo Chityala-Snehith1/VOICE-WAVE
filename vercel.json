@@ -7,12 +7,3 @@
     { "src": "/send-email", "dest": "/api/send_email.py" }
   ]
 }
-{
-  "version": 2,
-  "builds": [
-    { "src": "api/send_email.py", "use": "@vercel/python" }
-  ],
-  "routes": [
-    { "src": "/send-email", "dest": "/api/send_email.py" }
-  ]
-}
