@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Wave - Send Email by Voice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(120deg, #1e3c72, #2a5298);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Roboto', Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      padding: 2.5em 2em 2em 2em;
+      max-width: 420px;
+      width: 100%;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      font-weight: 700;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+    }
+    label {
+      display: block;
+      margin: 1em 0 0.3em 0;
+      font-weight: 500;
+      text-align: left;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.7em;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 0.5em;
+      font-size: 1em;
+      font-family: inherit;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      outline: none;
+      transition: background 0.2s;
+    }
+    input:focus, textarea:focus {
+      background: rgba(255,255,255,0.25);
+    }
+    button {
+      background: #ff9800;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.7em 1.5em;
+      font-size: 1em;
+      font-weight: 700;
+      margin: 0.5em 0.2em 0.5em 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    button:active {
+      background: #e65100;
+      transform: scale(0.97);
+    }
+    .mic-btn {
+      background: #2196f3;
+      margin-left: 0.3em;
+      padding: 0.7em 1em;
+    }
+    .mic-btn.listening {
+      background: #43a047;
+      animation: pulse 1s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 #43a04755; }
+      70% { box-shadow: 0 0 0 10px #43a04700; }
+      100% { box-shadow: 0 0 0 0 #43a04700; }
+    }
+    .status {
+      margin-top: 1.2em;
+      font-size: 1.1em;
+      color: #43a047;
+      min-height: 1.5em;
+    }
+    .error {
+      color: #ff5252;
+    }
+    .footer {
+      margin-top: 2em;
+      font-size: 0.95em;
+      color: #cfd8dc;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2196f3;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 0.5em;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Voice Wave</h1>
+    <p style="margin-bottom:1.5em;">Send emails securely using your voice.</p>
+    <form id="emailForm" autocomplete="off">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="Recipient's email" required>
+      <label>Subject
+        <button type="button" class="mic-btn" id="micSubject" title="Speak subject"><span id="micIconSubject">🎤</span></button>
+      </label>
+      <input type="text" id="subject" placeholder="Subject" required>
+      <label>Message
+        <button type="button" class="mic-btn" id="micMessage" title="Speak message"><span id="micIconMessage">🎤</span></button>
+      </label>
+      <textarea id="message" rows="4" placeholder="Type or speak your message" required></textarea>
+      <label>Unique Code</label>
+      <input type="text" id="code" placeholder="Your unique code" required>
+      <button type="submit">Send Email</button>
+    </form>
+    <div class="status" id="status"></div>
+    <div class="footer">&copy; 2025 Voice Wave | Secure Voice Email Bot</div>
+  </div>
+  <script>
+    function setupMicButton(btnId, inputId, iconId) {
+      const btn = document.getElementById(btnId);
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      let recognition;
+      let listening = false;
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        btn.disabled = true;
+        btn.title = 'Speech recognition not supported in this browser.';
+        return;
+      }
+      btn.onclick = function(e) {
+        e.preventDefault();
+        if (listening) {
+          recognition.stop();
+          return;
+        }
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        listening = true;
+        btn.classList.add('listening');
+        icon.textContent = '🔴';
+        recognition.start();
+        recognition.onresult = function(event) {
+          input.value = event.results[0][0].transcript;
+        };
+        recognition.onerror = function(event) {
+          document.getElementById('status').textContent = 'Voice recognition error: ' + event.error;
+          document.getElementById('status').className = 'status error';
+        };
+        recognition.onend = function() {
+          listening = false;
+          btn.classList.remove('listening');
+          icon.textContent = '🎤';
+        };
+      };
+    }
+    setupMicButton('micSubject', 'subject', 'micIconSubject');
+    setupMicButton('micMessage', 'message', 'micIconMessage');
+
+    document.getElementById('emailForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const subject = document.getElementById('subject').value;
+      const message = document.getElementById('message').value;
+      const code = document.getElementById('code').value;
+      const statusDiv = document.getElementById('status');
+      statusDiv.innerHTML = '<span class="loader"></span>Sending...';
+      statusDiv.className = 'status';
+      try {
+        const res = await fetch('/send-email', {
+          method: 'POST',
+          body: new URLSearchParams({ email, subject, message, code }),
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          statusDiv.textContent = data.status;
+          statusDiv.className = 'status';
+        } else {
+          statusDiv.textContent = data.error;
+          statusDiv.className = 'status error';
+        }
+      } catch (err) {
+        statusDiv.textContent = 'Error sending email.';
+        statusDiv.className = 'status error';
+      }
+    };
+  </script>
+</body>
+</html>
