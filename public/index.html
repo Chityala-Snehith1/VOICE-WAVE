@@ -191,7 +191,7 @@
       statusDiv.className = 'status';
       try {
   // IMPORTANT: Replace the URL below with your deployed FastAPI backend URL (e.g., on Render, Railway, etc.)
-  const res = await fetch('https://your-backend-url/send-email/', {
+  const res = await fetch('https://voice-wave-2.onrender.com/send-email/', {
           method: 'POST',
           body: new URLSearchParams({ email, subject, message }),
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
