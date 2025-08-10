@@ -190,7 +190,8 @@
       statusDiv.innerHTML = '<span class="loader"></span>Sending...';
       statusDiv.className = 'status';
       try {
-  const res = await fetch('http://127.0.0.1:8000/send-email/', {
+  // IMPORTANT: Replace the URL below with your deployed FastAPI backend URL (e.g., on Render, Railway, etc.)
+  const res = await fetch('https://your-backend-url/send-email/', {
           method: 'POST',
           body: new URLSearchParams({ email, subject, message }),
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
