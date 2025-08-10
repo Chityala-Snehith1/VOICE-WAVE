@@ -1,43 +1,46 @@
+
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, Form
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import smtplib
-import speech_recognition as sr
-import pyttsx3
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from email.message import EmailMessage
 import os
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify ["http://localhost:8000"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# Dummy unique code check (replace with real logic)
-USER_CODES = {
-    "voicewaveproject@gmail.com": "mjellbjjvyvmadbg"
-}
+
+
+
 
 @app.post("/send-email/")
 async def send_email(
     email: str = Form(...),
     subject: str = Form(...),
-    message: str = Form(...),
-    code: str = Form(...)
+    message: str = Form(...)
 ):
-    # Security check
-    if USER_CODES.get(email) != code:
-        return JSONResponse(status_code=403, content={"error": "Invalid code for this account."})
-
     try:
         # Set up the email
-        msg = MIMEMultipart()
-        msg['From'] = os.environ.get('EMAIL_USER')
-        msg['To'] = email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(message, 'plain'))
-
-        # Send the email
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(os.environ.get('EMAIL_USER'), os.environ.get('EMAIL_PASS'))
-        server.send_message(msg)
+
+        email_msg = EmailMessage()
+        email_msg['From'] = os.environ.get('EMAIL_USER')
+        email_msg['To'] = email
+        email_msg['Subject'] = subject
+        email_msg.set_content(message)
+
+        server.send_message(email_msg)
         server.quit()
         return {"status": "Email sent successfully!"}
     except Exception as e:

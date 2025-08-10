@@ -130,12 +130,13 @@
         <button type="button" class="mic-btn" id="micMessage" title="Speak message"><span id="micIconMessage">🎤</span></button>
       </label>
       <textarea id="message" rows="4" placeholder="Type or speak your message" required></textarea>
-      <label>Unique Code</label>
-      <input type="text" id="code" placeholder="Your unique code" required>
+  <!-- Unique Code field removed -->
       <button type="submit">Send Email</button>
     </form>
     <div class="status" id="status"></div>
-    <div class="footer">&copy; 2025 Voice Wave | Secure Voice Email Bot</div>
+  <div class="footer">&copy; 2025 Voice Wave | Secure Voice Email Bot<br>
+  <span style="font-size:0.98em; color:#fff;">Creators: Chityala Snehith, G.JOANNA SUZAN</span>
+  </div>
   </div>
   <script>
     function setupMicButton(btnId, inputId, iconId) {
@@ -185,14 +186,13 @@
       const email = document.getElementById('email').value;
       const subject = document.getElementById('subject').value;
       const message = document.getElementById('message').value;
-      const code = document.getElementById('code').value;
       const statusDiv = document.getElementById('status');
       statusDiv.innerHTML = '<span class="loader"></span>Sending...';
       statusDiv.className = 'status';
       try {
-        const res = await fetch('/send-email', {
+  const res = await fetch('http://127.0.0.1:8000/send-email/', {
           method: 'POST',
-          body: new URLSearchParams({ email, subject, message, code }),
+          body: new URLSearchParams({ email, subject, message }),
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         const data = await res.json();
